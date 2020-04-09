@@ -1,5 +1,8 @@
 import numpy as np
 import keras
+import pickle
+import os
+import functions
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import LabelBinarizer
 
@@ -49,7 +52,9 @@ class DataGenerator(keras.utils.Sequence):
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
             # Store sample
-            X[i,] = np.load('/l/Abraham/Projects/SpeakerVerification/Data/vox1_dev_wav/wav/' + ID + '.mel')
+            with open(os.getenv("SOUND_FILE_PATH") + ID + '.mel', 'rb') as f:
+                X[i,] = functions.get_vector(np.transpose(pickle.load(f)), 150)
+            #X[i,] = np.load()
 
             # Store class
             y[i] = self.labels[ID]
