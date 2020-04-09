@@ -11,7 +11,6 @@ from keras.models import load_model
 from keras import optimizers
 
 import functions
-from my_classes import DataGenerator
 
 import tensorflow as tf
 import os
