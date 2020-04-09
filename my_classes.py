@@ -59,8 +59,4 @@ class DataGenerator(keras.utils.Sequence):
             # Store class
             y[i] = self.labels[ID]
 
-            #Binarize labels in a one-vs-all fashion
-            binarize = LabelBinarizer(neg_label=0, pos_label=1, sparse_output=False)
-            data_labels = binarize.fit_transform(data_labels)
-
-        return X, keras.utils.to_categorical(data_labels, num_classes=self.n_classes)
+        return X, keras.utils.to_categorical(y, num_classes=self.n_classes)
