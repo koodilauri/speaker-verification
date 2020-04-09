@@ -49,7 +49,7 @@ class DataGenerator(keras.utils.Sequence):
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
             # Store sample
-            X[i,] = np.load('D:\\dippa\\voxceleb1\\wav\\' + ID + '.pkl')
+            X[i,] = np.load('/l/Abraham/Projects/SpeakerVerification/Data/vox1_dev_wav/wav/' + ID + '.mel')
 
             # Store class
             y[i] = self.labels[ID]
