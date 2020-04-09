@@ -51,7 +51,7 @@ def main(opt):
    labels = dict(zipObj)
 
    # Parameters
-   params = {'dim': (n_frames,n_features),
+   params = {'dim': (n_features,n_frames), # swithch row and col
                        'batch_size': opt.batch_size,
                        'n_classes': opt.n_classes,
                        'n_channels': n_channels,
