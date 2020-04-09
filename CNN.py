@@ -71,11 +71,11 @@ def main(opt):
    model.compile(optimizer=optm, loss='categorical_crossentropy', metrics = ['accuracy'])
 
 
-   model.fit(train, train_labels,
-             epochs=opt.max_epochs,
-             validation_data = (val, val_labels),
-             shuffle=True,
-             verbose=2)
+   model.fit_generator(generator=training_generator,
+                      epochs=opt.max_epochs,
+                      validation_data=validation_generator,
+                      use_multiprocessing=True,
+                      verbose=2)
    print('.... Saving model \n')
    model_name = 'cnn_spectrogram_2_vector.h5'
    model.save(opt.save_dir + model_name, overwrite=True)
