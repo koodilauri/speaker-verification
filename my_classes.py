@@ -58,9 +58,7 @@ class DataGenerator(keras.utils.Sequence):
 
             # Store class
             y[i] = self.labels[ID]
-            # To encode target labels with value between 0 and n_classes-1
-            label_encoder = LabelEncoder()
-            data_labels = label_encoder.fit_transform(y)
+
             #Binarize labels in a one-vs-all fashion
             binarize = LabelBinarizer(neg_label=0, pos_label=1, sparse_output=False)
             data_labels = binarize.fit_transform(data_labels)

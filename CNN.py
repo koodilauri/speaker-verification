@@ -50,8 +50,8 @@ def main(opt):
    train_names, val_names = train_test_split(show_names, test_size=0.20, random_state=4)
    partition = {'train':train_names, 'validation':val_names}
 
-   zipObj = zip(show_names,show_labels)
-   labels = dict(zipObj)
+   zipObj = zip(show_names,data_labels)
+   labels = dict(zipObj) # {'id10278/QOq66XogW3Q/00005': 8, ...}
 
    # Parameters
    params = {'dim': (n_frames, n_features),
