@@ -11,6 +11,7 @@ from keras.models import load_model
 from keras import optimizers
 
 import functions
+from my_classes import DataGenerator
 
 import tensorflow as tf
 import os
@@ -36,26 +37,30 @@ def main(opt):
    opt.n_classes = len(np.unique(data_labels))
    print('Number of classes',len(np.unique(data_labels)))
 
-   #Binarize labels in a one-vs-all fashion
-   binarize = LabelBinarizer(neg_label=0, pos_label=1, sparse_output=False)
-   data_labels = binarize.fit_transform(data_labels)
-
-   training_data = functions.load_data(opt, show_names)
-
-   # Splits the training data into random train and validation subsets
-   train, val = train_test_split(training_data, test_size=0.20, random_state=4)
-   train_labels, val_labels = train_test_split(data_labels, test_size=0.20, random_state=4)
-
-   train = np.array(train)
-   train_labels = np.array(train_labels)
-   val = np.array(val)
-   val_labels = np.array(val_labels)
-
    n_frames = opt.window_size
    n_features = 128
    n_channels = 1
 
    input_shape = (n_frames,n_features,n_channels)
+
+   # Partitions
+   train_names, val_names = train_test_split(show_names, test_size=0.20, random_state=4)
+   partition = {'train':train_names, 'validation':val_names}
+
+   zipObj = zip(show_names,show_labels)
+   labels = dict(zipObj)
+
+   # Parameters
+   params = {'dim': input_shape,
+                       'batch_size': opt.batch_size,
+                       'n_classes': opt.n_classes,
+                       'n_channels': n_channels,
+                       'shuffle': True}
+
+   # Generators
+   training_generator = DataGenerator(partition['train'], labels, **params)
+   validation_generator = DataGenerator(partition['validation'], labels, **params)
+
 
    model = functions.cnn(opt, 1, n_filters=[16], input_shape=input_shape)
    model.summary()
