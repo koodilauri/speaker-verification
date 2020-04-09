@@ -12,12 +12,15 @@ from keras import optimizers
 
 import functions
 from my_classes import DataGenerator
+import dotenv
 
 import tensorflow as tf
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.7)
 sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+
+dotenv.load_dotenv(verbose=True)
 
 #np.set_printoptions(threshold=sys.maxsize)
 
@@ -108,7 +111,7 @@ if __name__=="__main__":
    parser.add_argument('--predict', default = 0, help='0 for trainning, 1 for predicting')
 
    #paths
-   parser.add_argument('--spec_path', type=str, default ='/l/Abraham/Projects/SpeakerVerification/Data/vox1_dev_wav/wav/', help='spectrograms path')
+   parser.add_argument('--spec_path', type=str, default =os.getenv("SOUND_FILE_PATH"), help='spectrograms path')
    parser.add_argument('--save_dir', type=str, default='./models/', help='where model is saved')
 
    #optmization:
