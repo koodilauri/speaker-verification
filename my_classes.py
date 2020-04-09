@@ -63,4 +63,4 @@ class DataGenerator(keras.utils.Sequence):
             binarize = LabelBinarizer(neg_label=0, pos_label=1, sparse_output=False)
             data_labels = binarize.fit_transform(data_labels)
 
-        return X, data_labels
+        return X, keras.utils.to_categorical(data_labels, num_classes=self.n_classes)
