@@ -77,8 +77,8 @@ def main(opt):
    model.fit_generator(generator=training_generator,
                       epochs=opt.max_epochs,
                       validation_data=validation_generator,
-                      use_multiprocessing=True,
-                      verbose=2)
+                      verbose=1,
+                      max_queue_size=2)
    print('.... Saving model \n')
    model_name = 'cnn_spectrogram_2_vector.h5'
    model.save(opt.save_dir + model_name, overwrite=True)
@@ -116,8 +116,8 @@ if __name__=="__main__":
 
    #optmization:
    parser.add_argument('--window_size', type=int, default=150, help='Number of frames in a sample')
-   parser.add_argument('--batch_size', type=int, default=100, help='number of sequences to train on in parallel')
-   parser.add_argument('--max_epochs', type=int, default=100, help='number of full passes through the training data')
+   parser.add_argument('--batch_size', type=int, default=32, help='number of sequences to train on in parallel')
+   parser.add_argument('--max_epochs', type=int, default=10, help='number of full passes through the training data')
    parser.add_argument('--activation_function', type=str, default='relu', help='Activation function')
    parser.add_argument('--n_classes',  type=int, help='Number of classes')
    parser.add_argument('--seed', type=int, default=3435, help='random number generator seed')
