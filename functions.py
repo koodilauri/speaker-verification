@@ -91,10 +91,10 @@ def predict_by_model(opt, dnn, val_names, score_file, layer_name):
     #print(model.summary())
     scores = []
     for i in range(len(val_names[0])):
-        with open(opt.spec_path + val_names[0][i] + '.pickle', 'rb') as f:
+        with open(opt.spec_path + val_names[0][i] + '.mel', 'rb') as f:
              sample1 = get_vector(np.transpose(pickle.load(f)), opt.window_size)
              sample1 = np.expand_dims(sample1,axis=0)
-        with open(opt.spec_path + val_names[1][i] + '.pickle', 'rb') as f:
+        with open(opt.spec_path + val_names[1][i] + '.mel', 'rb') as f:
              sample2 = get_vector(np.transpose(pickle.load(f)), opt.window_size)
              sample2 = np.expand_dims(sample2,axis=0)
         sample1 = model.predict([sample1])
