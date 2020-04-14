@@ -9,6 +9,7 @@ from sklearn.preprocessing import LabelBinarizer
 #import Extract_Features as features
 from keras.models import load_model
 from keras import optimizers
+from keras.callbacks import ModelCheckpoint
 
 import functions
 from my_classes import DataGenerator
@@ -26,7 +27,7 @@ dotenv.load_dotenv(verbose=True)
 
 def main(opt):
 
- if opt.train:
+ if opt.train == '1':
    print('|             Training a CNN based Speaker Verification System                           |')
    print(' ******************************************************************************************\n')
 
@@ -51,7 +52,7 @@ def main(opt):
    partition = {'train':train_names, 'validation':val_names}
 
    zipObj = zip(show_names,data_labels)
-   labels = dict(zipObj) # {'id10278/QOq66XogW3Q/00005': 8, ...}
+   labels = dict(zipObj) # dictionary looks like this {'id10278/QOq66XogW3Q/00005': 8, ...}
 
    # Parameters
    params = {'dim': (n_frames, n_features),
@@ -65,7 +66,7 @@ def main(opt):
    validation_generator = DataGenerator(partition['validation'], labels, **params)
 
 
-   model = functions.cnn(opt, 1, n_filters=[16], input_shape=input_shape)
+   model = functions.cnn(opt, 3, n_filters=[128,256,512], input_shape=input_shape)
    model.summary()
 
    optm = optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
@@ -73,17 +74,21 @@ def main(opt):
 
    model.compile(optimizer=optm, loss='categorical_crossentropy', metrics = ['accuracy'])
 
+   model_name = 'cnn_spectrogram_2_vector.h5'
+
+   checkpoint = ModelCheckpoint(model_name, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
+   callbacks_list = [checkpoint]
 
    model.fit_generator(generator=training_generator,
                       epochs=opt.max_epochs,
                       validation_data=validation_generator,
                       verbose=1,
-                      max_queue_size=2)
+                      shuffle=True,
+                      callbacks=callbacks_list)
    print('.... Saving model \n')
-   model_name = 'cnn_spectrogram_2_vector.h5'
    model.save(opt.save_dir + model_name, overwrite=True)
 
- if opt.predict:
+ if opt.predict == '1':
    print(' -------------------------------------------------')
    print('|          Prediciting using trained CNN based Speaker Verification Model                            |')
    print('******************************************************************************************************\n')
@@ -91,8 +96,8 @@ def main(opt):
    validation_trials = 'VoxCeleb-1_validation_trials.txt'
    validation_list = open(validation_trials, "r")
    validation_names = functions.read_trials(validation_list)
-   print(validation_names)
-   exit(1)
+   #print(validation_names)
+   #exit(1)
 
    model_name = 'cnn_spectrogram_2_vector.h5'
    model = load_model(opt.save_dir + model_name)
@@ -116,8 +121,8 @@ if __name__=="__main__":
 
    #optmization:
    parser.add_argument('--window_size', type=int, default=150, help='Number of frames in a sample')
-   parser.add_argument('--batch_size', type=int, default=32, help='number of sequences to train on in parallel')
-   parser.add_argument('--max_epochs', type=int, default=10, help='number of full passes through the training data')
+   parser.add_argument('--batch_size', type=int, default=16, help='number of sequences to train on in parallel')
+   parser.add_argument('--max_epochs', type=int, default=50, help='number of full passes through the training data')
    parser.add_argument('--activation_function', type=str, default='relu', help='Activation function')
    parser.add_argument('--n_classes',  type=int, help='Number of classes')
    parser.add_argument('--seed', type=int, default=3435, help='random number generator seed')
