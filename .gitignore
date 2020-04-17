@@ -1,2 +1,7 @@
 /wav
 /models
+/scores
+.env
+/.ipynb_checkpoints
+/__pycache__
+*.log
