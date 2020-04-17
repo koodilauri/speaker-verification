@@ -12,6 +12,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from keras import backend as K
 from keras.models import Model
 from keras.layers import Input, Dense, Flatten, Conv2D, Flatten, MaxPooling2D, Reshape, concatenate, BatchNormalization, Dropout, Activation
+from keras_self_attention import SeqWeightedAttention 
+
 from keras import optimizers
 from keras import initializers
 
@@ -33,8 +35,11 @@ def cnn(opt, n_blocks, n_filters, input_shape):
          x = Conv2D(n_filters[i], kernel_size=(3,3), padding="same", activation=opt.activation_function, name=name)(x)
          name = ('block%d_pool'%(i+1))
          x = MaxPooling2D(pool_size=(2,2), name=name)(x)
-    x = Flatten()(x)
-    x = Dense(1000, activation=opt.activation_function)(x)
+    x = Reshape((-1,(np.int(x.shape[2]*x.shape[3]))))(x)
+    x = SeqWeightedAttention(name='attention_layer', return_attention=True)(x)
+    x = Dense(1000, activation=opt.activation_function')(x[0])
+    # x = Flatten()(x)
+    # x = Dense(1000, activation=opt.activation_function)(x)
     x = BatchNormalization()(x)
     x = Dropout(0.2)(x)
     x = Dense(400, activation=opt.activation_function, name='Embedding')(x)
