@@ -52,7 +52,7 @@ class DataGenerator(keras.utils.Sequence):
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
             # Store sample
-            with open(os.getenv("SOUND_FILE_PATH") + ID + '.pkl', 'rb') as f:
+            with open(os.getenv("SOUND_FILE_PATH") + ID + '.mel', 'rb') as f:
                 X[i,] = functions.get_vector(np.transpose(pickle.load(f)), 150)
             #X[i,] = np.load()
 

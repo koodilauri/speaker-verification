@@ -75,6 +75,7 @@ def main(opt):
    model.compile(optimizer=optm, loss='categorical_crossentropy', metrics = ['accuracy'])
 
    model_name = 'cnn_spectrogram_2_vector.h5'
+  #  model = load_model(model_name)
 
    checkpoint = ModelCheckpoint(model_name, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
    callbacks_list = [checkpoint]
@@ -104,7 +105,7 @@ def main(opt):
    model.summary()
    print('Model %s loaded' %model_name)
 
-   score_file = 'scores_VoxCeleb-1'
+   score_file = './scores/scores_VoxCeleb-1'
    functions.predict_by_model(opt, model, validation_names, score_file, 'Embedding')
    print('.... Done prediction with model : %s' %model_name)
 
