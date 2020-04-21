@@ -5,7 +5,7 @@ from sklearn.utils import shuffle
 from sklearn.preprocessing import scale
 import pickle
 import warnings
-from random import randint
+import random
 
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -35,9 +35,10 @@ def cnn(opt, n_blocks, n_filters, input_shape):
          x = Conv2D(n_filters[i], kernel_size=(3,3), padding="same", activation=opt.activation_function, name=name)(x)
          name = ('block%d_pool'%(i+1))
          x = MaxPooling2D(pool_size=(2,2), name=name)(x)
+         
     x = Reshape((-1,(np.int(x.shape[2]*x.shape[3]))))(x)
     x = SeqWeightedAttention(name='attention_layer', return_attention=True)(x)
-    x = Dense(1000, activation=opt.activation_function')(x[0])
+    x = Dense(1000, activation=opt.activation_function)(x[0])
     # x = Flatten()(x)
     # x = Dense(1000, activation=opt.activation_function)(x)
     x = BatchNormalization()(x)
@@ -55,10 +56,11 @@ def normalize(features):
     features = scale(features, axis=0)
     return features
 
-def get_vector(Features, window_size):
+def get_vector(Features, window_size, seed):
+    random.seed(seed)
     Features = normalize(Features)
     file_size = Features.shape[0]
-    index = randint(0, max(0,file_size-window_size-1))
+    index = random.randint(0, max(0,file_size-window_size-1))
     a = np.array(range(min(file_size, window_size)))+index
     new_vec = Features[a,:]
     return np.expand_dims(new_vec, axis=-1)
@@ -88,7 +90,7 @@ def load_data(opt, data_names):
     data = []
     for i in range(len(data_names)):
         with open(opt.spec_path + data_names[i] + '.mel', 'rb') as f:
-             data.append(get_vector(np.transpose(pickle.load(f)), opt.window_size))
+             data.append(get_vector(np.transpose(pickle.load(f)), opt.window_size, data_names[i]))
     return data
 
 def predict_by_model(opt, dnn, val_names, score_file, layer_name):

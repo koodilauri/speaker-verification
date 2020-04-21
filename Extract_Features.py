@@ -1,25 +1,27 @@
-from scipy import signal
-import scipy.io.wavfile as wav
-import pickle
-from Projects.SpeakerVerification import functions
-import numpy as np
 import librosa
-train_data= np.full((129,597),0)
+import pickle
+import glob
+import pickle
+import math
+import os.path
 
-def spectrogram(filename):
-    sample_rate, samples = wav.read(filename)
-    frequencies, times, spectrogram = signal.spectrogram(samples, sample_rate)
-    return spectrogram
-
-if __name__ == '__main__':
-    file_lists = ('/l/Abraham/Projects/SpeakerVerification/Data/vox1_test_wav/wav/training_labels.lst')
-    data_list = open(file_lists, "r")
-    #pickle_file='train.pickle'
-    data_names, data_labels = functions.read_file(data_list)
-    for i in range(0, len(data_names)):
-        pickle_file_name= data_names[i] + '.pickle'
-        data=spectrogram(data_names[i] + '.wav')
-        pickle_file = open(pickle_file_name, 'wb')
+total = 148642
+print('script started...')
+count = 0
+for filename in glob.iglob('E:/dippa/voxceleb1/wav/**/*/*.wav',recursive=True):
+    if not os.path.isfile(filename[:-3] + 'mel'):
+        count+=1
+        if (count % 1000 == 0):
+            print(count/total, ' processed.')
+        duration = int(librosa.get_duration(filename=filename))
+        y, sr = librosa.load(filename, sr=None)
+        data = librosa.feature.melspectrogram(y=y[:(sr*duration-1)], sr=sr, n_fft=int(sr*0.03), hop_length=int(0.01*sr))
+        pickle_file = open(filename[:-3] + 'mel', 'wb')
         pickle.dump(data, pickle_file)
         pickle_file.close()
+    else:
+        count +=1
+        if (count % 1000 == 0):
+            print(count/total, ' processed.')
 
+print('finished')

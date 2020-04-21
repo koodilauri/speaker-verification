@@ -10,6 +10,7 @@ from sklearn.preprocessing import LabelBinarizer
 from keras.models import load_model
 from keras import optimizers
 from keras.callbacks import ModelCheckpoint
+from keras_self_attention import SeqWeightedAttention
 
 import functions
 from my_classes import DataGenerator
@@ -101,7 +102,7 @@ def main(opt):
    #exit(1)
 
    model_name = 'cnn_spectrogram_2_vector.h5'
-   model = load_model(opt.save_dir + model_name)
+   model = load_model(opt.save_dir + model_name, custom_objects=SeqWeightedAttention.get_custom_objects())
    model.summary()
    print('Model %s loaded' %model_name)
 
@@ -122,8 +123,8 @@ if __name__=="__main__":
 
    #optmization:
    parser.add_argument('--window_size', type=int, default=150, help='Number of frames in a sample')
-   parser.add_argument('--batch_size', type=int, default=16, help='number of sequences to train on in parallel')
-   parser.add_argument('--max_epochs', type=int, default=50, help='number of full passes through the training data')
+   parser.add_argument('--batch_size', type=int, default=32, help='number of sequences to train on in parallel')
+   parser.add_argument('--max_epochs', type=int, default=100, help='number of full passes through the training data')
    parser.add_argument('--activation_function', type=str, default='relu', help='Activation function')
    parser.add_argument('--n_classes',  type=int, help='Number of classes')
    parser.add_argument('--seed', type=int, default=3435, help='random number generator seed')
