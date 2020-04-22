@@ -8,7 +8,7 @@ from sklearn.preprocessing import LabelBinarizer
 
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
-    def __init__(self, list_IDs, labels, batch_size=32, dim=(150,128), n_channels=1,
+    def __init__(self, list_IDs, labels, batch_size=32, dim=(250,128), n_channels=1,
                  n_classes=10, shuffle=True):
         'Initialization'
         self.dim = dim
@@ -53,7 +53,7 @@ class DataGenerator(keras.utils.Sequence):
         for i, ID in enumerate(list_IDs_temp):
             # Store sample
             with open(os.getenv("SOUND_FILE_PATH") + ID + '.mel', 'rb') as f:
-                X[i,] = functions.get_vector(np.transpose(pickle.load(f)), 150, ID)
+                X[i,] = functions.get_vector(np.transpose(pickle.load(f)), 250, ID)
             #X[i,] = np.load()
 
             # Store class

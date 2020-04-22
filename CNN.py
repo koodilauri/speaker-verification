@@ -76,7 +76,7 @@ def main(opt):
    model.compile(optimizer=optm, loss='categorical_crossentropy', metrics = ['accuracy'])
 
    model_name = 'cnn_spectrogram_2_vector.h5'
-  #  model = load_model(model_name)
+  #  model = load_model(model_name, custom_objects=SeqWeightedAttention.get_custom_objects())
 
    checkpoint = ModelCheckpoint(model_name, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
    callbacks_list = [checkpoint]
