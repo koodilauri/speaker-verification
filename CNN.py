@@ -43,7 +43,7 @@ def main(opt):
    print('Number of classes',len(np.unique(data_labels)))
 
    n_frames = opt.window_size
-   n_features = 128
+   n_features = 9 #
    n_channels = 1
 
    input_shape = (n_frames,n_features,n_channels)
@@ -66,7 +66,7 @@ def main(opt):
    training_generator = DataGenerator(partition['train'], labels, **params)
    validation_generator = DataGenerator(partition['validation'], labels, **params)
 
-
+  # if ...
    model = functions.cnn(opt, 3, n_filters=[128,256,512], input_shape=input_shape)
    model.summary()
 

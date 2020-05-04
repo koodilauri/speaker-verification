@@ -52,8 +52,16 @@ class DataGenerator(keras.utils.Sequence):
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
             # Store sample
-            with open(os.getenv("SOUND_FILE_PATH") + ID + '.mel', 'rb') as f:
-                X[i,] = functions.get_vector(np.transpose(pickle.load(f)), 250, ID)
+            with open(os.getenv("SOUND_FILE_PATH") + ID + '.xls', 'r') as f:
+                lines = f.readlines()
+                r = []
+                for x in lines:
+                    x = x.rstrip().split('\t')
+                    r.append(x[:-1]) # append all features except last one (shim apq11)
+                ar = np.array(r).astype(np.float)
+                X[i,] = functions.get_vector(ar, 250, ID)
+            # with open(os.getenv("SOUND_FILE_PATH") + ID + '.mel', 'rb') as f:
+            #     X[i,] = functions.get_vector(np.transpose(pickle.load(f)), 250, ID)
             #X[i,] = np.load()
 
             # Store class
