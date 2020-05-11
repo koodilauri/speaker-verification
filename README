@@ -11,15 +11,15 @@ I used spectrogram as feature here but it can be replaced with other feature typ
 2. The validation trials are in file: VoxCeleb-1_validation_trials.txt
 
 3. To train a cnn model in keras, run:
-   "python3 CNN.py --train 1 --predict 0"
+   "python CNN.py --train 1 --predict 0"
    
    a. This will load data from the path you provide in the CNN.py script. 
    b. It will train the model.
    c. It will save the trained model in the same directory.
 
 4. To extract speaker embeddings using the trained model and score trials, run:
-   "python3 CNN.py --train 0 --predict 1"
+   "python CNN.py --train 0 --predict 1"
    The scores will be saved in text file: scores_VoxCeleb-1
  
 5. Finally to compute Equal Error Rate, type:
-   "python3 EER.py scores_VoxCeleb-1"
+   "python EER.py scores_VoxCeleb-1"

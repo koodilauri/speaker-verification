@@ -43,10 +43,12 @@ def main(opt):
    print('Number of classes',len(np.unique(data_labels)))
 
    n_frames = opt.window_size
-   n_features = 9 #
+   n_features1 = 128 #
+   n_features2 = 9 #
    n_channels = 1
 
-   input_shape = (n_frames,n_features,n_channels)
+   input_shape1 = (n_frames,n_features1,n_channels)
+   input_shape2 = (n_frames,n_features2,n_channels)
 
    # Partitions
    train_names, val_names = train_test_split(show_names, test_size=0.20, random_state=4)
@@ -56,26 +58,30 @@ def main(opt):
    labels = dict(zipObj) # dictionary looks like this {'id10278/QOq66XogW3Q/00005': 8, ...}
 
    # Parameters
-   params = {'dim': (n_frames, n_features),
+   params = {'dim1': (n_frames, n_features1),
+                       'dim2': (n_frames, n_features2),
+                       'n_frames': n_frames,
                        'batch_size': opt.batch_size,
                        'n_classes': opt.n_classes,
                        'n_channels': n_channels,
-                       'shuffle': True}
+                       'shuffle': True,
+                       'suffixes': ['.pkl','.xls1']}
+   print('DataGenerator Params', params)
 
    # Generators
    training_generator = DataGenerator(partition['train'], labels, **params)
    validation_generator = DataGenerator(partition['validation'], labels, **params)
 
-  # if ...
-   model = functions.cnn(opt, 3, n_filters=[128,256,512], input_shape=input_shape)
+  # comment out below if loading an existing model instead...
+  #  model = functions.cnn(opt, 3, n_filters=[128,256,512], input_shape=input_shape)
+   model = functions.cnn_concat(opt, n_filters=[128,256,512], input_shape1=input_shape1, input_shape2=input_shape2)
    model.summary()
-
    optm = optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
-
-
    model.compile(optimizer=optm, loss='categorical_crossentropy', metrics = ['accuracy'])
 
    model_name = 'cnn_spectrogram_2_vector.h5'
+
+  # remove comment below if loading existing model
   #  model = load_model(model_name, custom_objects=SeqWeightedAttention.get_custom_objects())
 
    checkpoint = ModelCheckpoint(model_name, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
@@ -85,6 +91,8 @@ def main(opt):
                       epochs=opt.max_epochs,
                       validation_data=validation_generator,
                       verbose=1,
+                      workers=4,
+                      use_multiprocessing=True,
                       shuffle=True,
                       callbacks=callbacks_list)
    print('.... Saving model \n')
