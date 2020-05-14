@@ -18,9 +18,9 @@ import dotenv
 
 import tensorflow as tf
 import os
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
-gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.7)
-sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+# os.environ["CUDA_VISIBLE_DEVICES"]="0"
+# gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.7)
+# sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
 
 dotenv.load_dotenv(verbose=True)
 
@@ -65,7 +65,7 @@ def main(opt):
                        'n_classes': opt.n_classes,
                        'n_channels': n_channels,
                        'shuffle': True,
-                       'suffixes': ['.pkl','.xls1']}
+                       'suffixes': ['.pkldb','.xls1']}
    print('DataGenerator Params', params)
 
    # Generators
@@ -73,13 +73,13 @@ def main(opt):
    validation_generator = DataGenerator(partition['validation'], labels, **params)
 
   # comment out below if loading an existing model instead...
-  #  model = functions.cnn(opt, 3, n_filters=[128,256,512], input_shape=input_shape)
-   model = functions.cnn_concat(opt, n_filters=[128,256,512], input_shape1=input_shape1, input_shape2=input_shape2)
+  #  model = functions.cnn(opt, 3, n_filters=[128,256,512], input_shape=input_shape1)
+   model = functions.cnn_concat(opt, 3, n_filters=[128,256,512], input_shape1=input_shape1, input_shape2=input_shape2)
    model.summary()
    optm = optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
    model.compile(optimizer=optm, loss='categorical_crossentropy', metrics = ['accuracy'])
 
-   model_name = 'cnn_spectrogram_2_vector.h5'
+   model_name = 'cnn_spectrogram_2_vector_fused.h5'
 
   # remove comment below if loading existing model
   #  model = load_model(model_name, custom_objects=SeqWeightedAttention.get_custom_objects())
@@ -91,9 +91,9 @@ def main(opt):
                       epochs=opt.max_epochs,
                       validation_data=validation_generator,
                       verbose=1,
-                      workers=4,
-                      use_multiprocessing=True,
                       shuffle=True,
+                      workers=2,
+                      use_multiprocessing=True,
                       callbacks=callbacks_list)
    print('.... Saving model \n')
    model.save(opt.save_dir + model_name, overwrite=True)
@@ -109,7 +109,7 @@ def main(opt):
    #print(validation_names)
    #exit(1)
 
-   model_name = 'cnn_spectrogram_2_vector.h5'
+   model_name = 'cnn_spectrogram_2_vector_baseline.h5'
    model = load_model(opt.save_dir + model_name, custom_objects=SeqWeightedAttention.get_custom_objects())
    model.summary()
    print('Model %s loaded' %model_name)

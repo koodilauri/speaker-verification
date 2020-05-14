@@ -17,12 +17,12 @@ from keras_self_attention import SeqWeightedAttention
 from keras import optimizers
 from keras import initializers
 
-def cnn_concat(opt, n_filters, input_shape1, input_shape2):
+def cnn_concat(opt, n_blocks, n_filters, input_shape1, input_shape2):
 
     # the first branch operates on the first input
-    x = create_cnn(opt, 3, n_filters=n_filters, input_shape=input_shape1, tag='mel')
+    x = create_cnn(opt, n_blocks, n_filters=n_filters, input_shape=input_shape1, tag='mel')
     # the second branch opreates on the second input
-    y = create_cnn(opt, 3, n_filters=n_filters, input_shape=input_shape2, tag='jit')
+    y = create_cnn(opt, n_blocks, n_filters=n_filters, input_shape=input_shape2, tag='jit')
 
     # combine the output of the two branches
     combineInput = concatenate([x.output, y.output])
@@ -108,7 +108,7 @@ def normalize(features):
     return features
 
 def get_vector(Features, window_size, seed):
-    random.seed(seed)
+    # random.seed(seed)
     Features = normalize(Features)
     file_size = Features.shape[0]
     index = random.randint(0, max(0,file_size-window_size-1))
@@ -136,14 +136,14 @@ def read_trials(list):
         label.append(x.split()[2])
     return name1, name2, label
 
-def load_data(opt, data_names):
-    print('.... Loading data')
-    data = []
-    for i in range(len(data_names)):
-        with open(opt.spec_path + data_names[i] + '.xls1', 'r') as f:
-             dat = read_xls(f)
-             data.append(dat, opt.window_size, data_names[i])
-    return data
+# def load_data(opt, data_names):
+#     print('.... Loading data')
+#     data = []
+#     for i in range(len(data_names)):
+#         with open(opt.spec_path + data_names[i] + '.xls1', 'r') as f:
+#              dat = read_xls(f)
+#              data.append(dat, opt.window_size, data_names[i])
+#     return data
 
 def predict_by_model(opt, dnn, val_names, score_file, layer_name):
     model = Model(inputs=dnn.input, outputs=dnn.get_layer(layer_name).output)
@@ -151,23 +151,25 @@ def predict_by_model(opt, dnn, val_names, score_file, layer_name):
     scores = []
     for i in range(len(val_names[0])):
         # mel spectrogram
-        with open(opt.spec_path + val_names[0][i] + '.pkl', 'rb') as f:
+        with open(opt.spec_path + val_names[0][i] + '.pkldb', 'rb') as f:
              sample11 = get_vector(np.transpose(pickle.load(f)), opt.window_size, opt.spec_path + val_names[0][i])
              sample11 = np.expand_dims(sample11,axis=0)
         # jitter & shimmer
-        with open(opt.spec_path + val_names[0][i] + '.xls1', 'r') as f:
-             dat = read_xls(f)
-             sample12 = get_vector(dat, opt.window_size, opt.spec_path + val_names[0][i])
-             sample12 = np.expand_dims(sample12,axis=0)
-        with open(opt.spec_path + val_names[1][i] + '.pkl', 'rb') as f:
+        # with open(opt.spec_path + val_names[0][i] + '.xls1', 'r') as f:
+        #      dat = read_xls(f)
+        #      sample12 = get_vector(dat, opt.window_size, opt.spec_path + val_names[0][i])
+        #      sample12 = np.expand_dims(sample12,axis=0)
+        with open(opt.spec_path + val_names[1][i] + '.pkldb', 'rb') as f:
              sample21 = get_vector(np.transpose(pickle.load(f)), opt.window_size, opt.spec_path + val_names[1][i])
              sample21 = np.expand_dims(sample21,axis=0)
-        with open(opt.spec_path + val_names[1][i] + '.xls1', 'r') as f:
-             dat = read_xls(f)
-             sample22 = get_vector(dat, opt.window_size, opt.spec_path + val_names[1][i])
-             sample22 = np.expand_dims(sample22,axis=0)
-        sample1 = model.predict([sample11,sample12])
-        sample2 = model.predict([sample21,sample22])
+        # with open(opt.spec_path + val_names[1][i] + '.xls1', 'r') as f:
+        #      dat = read_xls(f)
+        #      sample22 = get_vector(dat, opt.window_size, opt.spec_path + val_names[1][i])
+        #      sample22 = np.expand_dims(sample22,axis=0)
+        # sample1 = model.predict([sample11,sample12])
+        # sample2 = model.predict([sample21,sample22])
+        sample1 = model.predict([sample11])
+        sample2 = model.predict([sample21])
         scores.append(np.squeeze(cosine_similarity(sample1, sample2)))
         #print('%d %s' %(i,scores[i]))
     scores = np.array(scores)
