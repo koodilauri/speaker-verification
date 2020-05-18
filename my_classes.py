@@ -9,7 +9,7 @@ from sklearn.preprocessing import LabelBinarizer
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
     def __init__(self, list_IDs, labels, batch_size=32, dim1=(100,128),dim2=(100,9), n_channels=1,
-                 n_classes=10, shuffle=True, n_frames=100, suffixes=['.mel','.xls']):
+                 n_classes=10, shuffle=True, n_frames=100, suffixes=[None,None]):
         'Initialization'
         self.dim1 = dim1
         self.dim2 = dim2
@@ -77,6 +77,6 @@ class DataGenerator(keras.utils.Sequence):
 
             # Store class
             y[i] = self.labels[ID]
-            X = [X_mel, X_jittershimmer]
-            # X = X_mel
+            # X = [X_mel, X_jittershimmer]
+            X = X_mel
         return X, keras.utils.to_categorical(y, num_classes=self.n_classes)

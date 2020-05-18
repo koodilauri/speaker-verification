@@ -74,14 +74,15 @@ def main(opt):
 
   # comment out below if loading an existing model instead...
   #  model = functions.cnn(opt, 3, n_filters=[128,256,512], input_shape=input_shape1)
-   model = functions.cnn_concat(opt, 3, n_filters=[128,256,512], input_shape1=input_shape1, input_shape2=input_shape2)
-   model.summary()
-   optm = optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
-   model.compile(optimizer=optm, loss='categorical_crossentropy', metrics = ['accuracy'])
+  #  model = functions.cnn_concat(opt, 3, n_filters=[128,256,512], input_shape1=input_shape1, input_shape2=input_shape2)
+  #  model.summary()
+  #  optm = optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+  #  model.compile(optimizer=optm, loss='categorical_crossentropy', metrics = ['accuracy'])
 
-   model_name = 'cnn_spectrogram_2_vector_fused.h5'
+   model_name = 'cnn_flatten_baseline.h5'
 
   # remove comment below if loading existing model
+   model = load_model(model_name)
   #  model = load_model(model_name, custom_objects=SeqWeightedAttention.get_custom_objects())
 
    checkpoint = ModelCheckpoint(model_name, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
@@ -109,7 +110,7 @@ def main(opt):
    #print(validation_names)
    #exit(1)
 
-   model_name = 'cnn_spectrogram_2_vector_baseline.h5'
+   model_name = 'cnn_flatten_baseline.h5'
    model = load_model(opt.save_dir + model_name, custom_objects=SeqWeightedAttention.get_custom_objects())
    model.summary()
    print('Model %s loaded' %model_name)

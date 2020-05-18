@@ -22,4 +22,4 @@ I used spectrogram as feature here but it can be replaced with other feature typ
    The scores will be saved in text file: scores_VoxCeleb-1
  
 5. Finally to compute Equal Error Rate, type:
-   "python EER.py scores_VoxCeleb-1"
+   "python EER.py ./scores/scores_VoxCeleb-1"
