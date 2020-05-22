@@ -51,7 +51,7 @@ class DataGenerator(keras.utils.Sequence):
         # Initialization
         # X = np.empty((self.batch_size, *self.dim, self.n_channels))
         X_mel = np.empty((self.batch_size, *self.dim1, self.n_channels))
-        X_jittershimmer = np.empty((self.batch_size, *self.dim2, self.n_channels))
+        # X_jittershimmer = np.empty((self.batch_size, *self.dim2, self.n_channels))
         y = np.empty((self.batch_size), dtype=int)
 
         # Generate data
@@ -59,16 +59,16 @@ class DataGenerator(keras.utils.Sequence):
             # Store sample
 
             # get jitter & shimmer samples
-            with open(os.getenv("SOUND_FILE_PATH") + ID + self.suffixes[1], 'r') as f:
-                lines = f.readlines()
-                r = []
-                for x in lines:
-                    # remove all \t and \n from a line
-                    x = x.rstrip().split('\t')
-                    r.append(x[:-1]) # append all features except last one (shim apq11)
-                # change the numbers to float
-                ar = np.array(r).astype(np.float)
-                X_jittershimmer[i,] = functions.get_vector(ar, self.n_frames, ID)
+            # with open(os.getenv("SOUND_FILE_PATH") + ID + self.suffixes[1], 'r') as f:
+            #     lines = f.readlines()
+            #     r = []
+            #     for x in lines:
+            #         # remove all \t and \n from a line
+            #         x = x.rstrip().split('\t')
+            #         r.append(x[:-1]) # append all features except last one (shim apq11)
+            #     # change the numbers to float
+            #     ar = np.array(r).astype(np.float)
+            #     X_jittershimmer[i,] = functions.get_vector(ar, self.n_frames, ID)
             
             # get mel sample
             with open(os.getenv("SOUND_FILE_PATH") + ID + self.suffixes[0], 'rb') as f:

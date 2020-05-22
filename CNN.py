@@ -43,7 +43,7 @@ def main(opt):
    print('Number of classes',len(np.unique(data_labels)))
 
    n_frames = opt.window_size
-   n_features1 = 128 #
+   n_features1 = 80 #
    n_features2 = 9 #
    n_channels = 1
 
@@ -65,7 +65,7 @@ def main(opt):
                        'n_classes': opt.n_classes,
                        'n_channels': n_channels,
                        'shuffle': True,
-                       'suffixes': ['.pkldb','.xls1']}
+                       'suffixes': ['.mel2','.xls1']}
    print('DataGenerator Params', params)
 
    # Generators
@@ -73,13 +73,13 @@ def main(opt):
    validation_generator = DataGenerator(partition['validation'], labels, **params)
 
   # comment out below if loading an existing model instead...
-  #  model = functions.cnn(opt, 3, n_filters=[128,256,512], input_shape=input_shape1)
+  #  model = functions.cnn(opt, 3, n_filters=[128,256,256], input_shape=input_shape1)
   #  model = functions.cnn_concat(opt, 3, n_filters=[128,256,512], input_shape1=input_shape1, input_shape2=input_shape2)
   #  model.summary()
   #  optm = optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
   #  model.compile(optimizer=optm, loss='categorical_crossentropy', metrics = ['accuracy'])
 
-   model_name = 'cnn_flatten_baseline.h5'
+   model_name = 'cnn_flatten_baseline80.h5'
 
   # remove comment below if loading existing model
    model = load_model(model_name)
@@ -93,8 +93,8 @@ def main(opt):
                       validation_data=validation_generator,
                       verbose=1,
                       shuffle=True,
-                      workers=2,
-                      use_multiprocessing=True,
+                      # workers=2,
+                      # use_multiprocessing=True,
                       callbacks=callbacks_list)
    print('.... Saving model \n')
    model.save(opt.save_dir + model_name, overwrite=True)
@@ -110,12 +110,14 @@ def main(opt):
    #print(validation_names)
    #exit(1)
 
-   model_name = 'cnn_flatten_baseline.h5'
-   model = load_model(opt.save_dir + model_name, custom_objects=SeqWeightedAttention.get_custom_objects())
+   model_name = 'cnn_flatten_baseline80.h5'
+   model = load_model(model_name)
+  #  model = load_model(opt.save_dir + model_name)
+  #  model = load_model(opt.save_dir + model_name, custom_objects=SeqWeightedAttention.get_custom_objects())
    model.summary()
    print('Model %s loaded' %model_name)
 
-   score_file = './scores/scores_VoxCeleb-1'
+   score_file = './scores/scores_baseline_flatten80'
    functions.predict_by_model(opt, model, validation_names, score_file, 'Embedding')
    print('.... Done prediction with model : %s' %model_name)
 

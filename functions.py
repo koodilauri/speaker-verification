@@ -151,7 +151,7 @@ def predict_by_model(opt, dnn, val_names, score_file, layer_name):
     scores = []
     for i in range(len(val_names[0])):
         # mel spectrogram
-        with open(opt.spec_path + val_names[0][i] + '.pkldb', 'rb') as f:
+        with open(opt.spec_path + val_names[0][i] + '.mel2', 'rb') as f:
              sample11 = get_vector(np.transpose(pickle.load(f)), opt.window_size, opt.spec_path + val_names[0][i])
              sample11 = np.expand_dims(sample11,axis=0)
         # jitter & shimmer
@@ -159,7 +159,7 @@ def predict_by_model(opt, dnn, val_names, score_file, layer_name):
             #  dat = read_xls(f)
             #  sample12 = get_vector(dat, opt.window_size, opt.spec_path + val_names[0][i])
             #  sample12 = np.expand_dims(sample12,axis=0)
-        with open(opt.spec_path + val_names[1][i] + '.pkldb', 'rb') as f:
+        with open(opt.spec_path + val_names[1][i] + '.mel2', 'rb') as f:
              sample21 = get_vector(np.transpose(pickle.load(f)), opt.window_size, opt.spec_path + val_names[1][i])
              sample21 = np.expand_dims(sample21,axis=0)
         # with open(opt.spec_path + val_names[1][i] + '.xls1', 'r') as f:
