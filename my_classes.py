@@ -51,32 +51,34 @@ class DataGenerator(keras.utils.Sequence):
         # Initialization
         # X = np.empty((self.batch_size, *self.dim, self.n_channels))
         X_mel = np.empty((self.batch_size, *self.dim1, self.n_channels))
-        # X_jittershimmer = np.empty((self.batch_size, *self.dim2, self.n_channels))
+        X_jittershimmer = np.empty((self.batch_size, *self.dim2, self.n_channels))
         y = np.empty((self.batch_size), dtype=int)
 
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
             # Store sample
 
-            # get jitter & shimmer samples
-            # with open(os.getenv("SOUND_FILE_PATH") + ID + self.suffixes[1], 'r') as f:
-            #     lines = f.readlines()
-            #     r = []
-            #     for x in lines:
-            #         # remove all \t and \n from a line
-            #         x = x.rstrip().split('\t')
-            #         r.append(x[:-1]) # append all features except last one (shim apq11)
-            #     # change the numbers to float
-            #     ar = np.array(r).astype(np.float)
-            #     X_jittershimmer[i,] = functions.get_vector(ar, self.n_frames, ID)
-            
             # get mel sample
             with open(os.getenv("SOUND_FILE_PATH") + ID + self.suffixes[0], 'rb') as f:
-                X_mel[i,] = functions.get_vector(np.transpose(pickle.load(f)), self.n_frames, ID)
+                X_mel[i,], index1 = functions.get_vector(np.transpose(pickle.load(f)), self.n_frames, ID)
             #X[i,] = np.load()
 
+            # get jitter & shimmer samples
+            with open(os.getenv("SOUND_FILE_PATH") + ID + self.suffixes[1], 'r') as f:
+                lines = f.readlines()
+                r = []
+                for x in lines:
+                    # remove all \t and \n from a line
+                    x = x.rstrip().split('\t')
+                    r.append(x[:9]) # append the 9 first features (shim apq11 skipped)
+                # change the numbers to float
+                ar = np.array(r).astype(np.float)
+                # also provide the index1 from mel, so the data points match 
+                # print(ar.shape, ID)
+                X_jittershimmer[i,], index2 = functions.get_vector(ar, self.n_frames, ID, index1)
+            
             # Store class
             y[i] = self.labels[ID]
-            # X = [X_mel, X_jittershimmer]
-            X = X_mel
+            X = [X_mel, X_jittershimmer]
+            # X = X_mel
         return X, keras.utils.to_categorical(y, num_classes=self.n_classes)

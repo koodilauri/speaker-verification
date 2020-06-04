@@ -21,7 +21,11 @@ import os
 # os.environ["CUDA_VISIBLE_DEVICES"]="0"
 # gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.7)
 # sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+#config = tf.ConfigProto()
+#config.gpu_options.allow_growth=True
+#sess = tf.Session(config=config)
 
+continue_from_last_trained_model=False
 dotenv.load_dotenv(verbose=True)
 
 #np.set_printoptions(threshold=sys.maxsize)
@@ -46,6 +50,7 @@ def main(opt):
    n_features1 = 80 #
    n_features2 = 9 #
    n_channels = 1
+   optm = optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
 
    input_shape1 = (n_frames,n_features1,n_channels)
    input_shape2 = (n_frames,n_features2,n_channels)
@@ -65,25 +70,29 @@ def main(opt):
                        'n_classes': opt.n_classes,
                        'n_channels': n_channels,
                        'shuffle': True,
-                       'suffixes': ['.mel2','.xls1']}
+                       'suffixes': ['.mel2','.xls3']}
    print('DataGenerator Params', params)
 
    # Generators
    training_generator = DataGenerator(partition['train'], labels, **params)
    validation_generator = DataGenerator(partition['validation'], labels, **params)
 
-  # comment out below if loading an existing model instead...
-  #  model = functions.cnn(opt, 3, n_filters=[128,256,256], input_shape=input_shape1)
-  #  model = functions.cnn_concat(opt, 3, n_filters=[128,256,512], input_shape1=input_shape1, input_shape2=input_shape2)
-  #  model.summary()
-  #  optm = optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
-  #  model.compile(optimizer=optm, loss='categorical_crossentropy', metrics = ['accuracy'])
+   # comment out below if loading an existing model instead...
+   #  model = functions.cnn(opt, 3, n_filters=[128,256,256], input_shape=input_shape1)
+   
 
-   model_name = 'cnn_flatten_baseline80.h5'
-
-  # remove comment below if loading existing model
-   model = load_model(model_name)
-  #  model = load_model(model_name, custom_objects=SeqWeightedAttention.get_custom_objects())
+   model_name = 'cnn_flatten_fused80_2.h5'
+   if(continue_from_last_trained_model):
+     print('Continuing from a saved model...')
+     model = load_model(model_name)
+     #  model = load_model(model_name, custom_objects=SeqWeightedAttention.get_custom_objects())
+     #model.compile(optimizer=optm, loss='categorical_crossentropy', metrics = ['accuracy'])
+     #model.set_weights(last_model.get_weights())
+   else:
+	   model = functions.cnn_concat(opt, 3, n_filters=[128,256,256], input_shape1=input_shape1, input_shape2=input_shape2)
+	   model.compile(optimizer=optm, loss='categorical_crossentropy', metrics = ['accuracy'])
+   
+   model.summary()
 
    checkpoint = ModelCheckpoint(model_name, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
    callbacks_list = [checkpoint]
@@ -93,8 +102,8 @@ def main(opt):
                       validation_data=validation_generator,
                       verbose=1,
                       shuffle=True,
-                      # workers=2,
-                      # use_multiprocessing=True,
+                      #workers=2,
+                      #use_multiprocessing=True,
                       callbacks=callbacks_list)
    print('.... Saving model \n')
    model.save(opt.save_dir + model_name, overwrite=True)
@@ -110,15 +119,15 @@ def main(opt):
    #print(validation_names)
    #exit(1)
 
-   model_name = 'cnn_flatten_baseline80.h5'
-   model = load_model(model_name)
+   model_name = 'cnn_flatten_fused80-30.h5'
+   model = load_model('./models/flatten-fused/' + model_name)
   #  model = load_model(opt.save_dir + model_name)
   #  model = load_model(opt.save_dir + model_name, custom_objects=SeqWeightedAttention.get_custom_objects())
    model.summary()
    print('Model %s loaded' %model_name)
 
-   score_file = './scores/scores_baseline_flatten80'
-   functions.predict_by_model(opt, model, validation_names, score_file, 'Embedding')
+   score_file = './scores/' + model_name[:-3]
+   functions.predict_by_model(opt, model, validation_names, score_file, 'Embedding') #  concatenate_1
    print('.... Done prediction with model : %s' %model_name)
 
 if __name__=="__main__":
