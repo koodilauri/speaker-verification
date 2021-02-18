@@ -1,10 +1,10 @@
 import numpy as np
 import sys
-import numpy as np
 
 
 def EER(clients, impostors):
-    threshold = np.arange(-1,1,0.1) #[-0.5,-0.4,-0.3,-0.2,-0.1,0.,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8]
+    threshold = np.arange(0.4,0.9,0.01) #[-0.5,-0.4,-0.3,-0.2,-0.1,0.,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8]
+    # print(threshold)
     FAR = []
     FRR = []
     for th in threshold:
@@ -18,9 +18,11 @@ def EER(clients, impostors):
                 frr += 1
         FAR.append(far/impostors.size)
         FRR.append(frr/clients.size)
+    #print(FAR, FRR)
     ERR = 0.
     dist = 1.
     for far, frr in zip(FAR,FRR):
+        #print(float("{0:.3f}".format(100*(far+frr)/2)))
         if abs(far-frr) < dist:
             ERR = (far+frr)/2
             dist = abs(far-frr)

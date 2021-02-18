@@ -25,7 +25,7 @@ import os
 #config.gpu_options.allow_growth=True
 #sess = tf.Session(config=config)
 
-continue_from_last_trained_model=False
+continue_from_last_trained_model=True
 dotenv.load_dotenv(verbose=True)
 
 #np.set_printoptions(threshold=sys.maxsize)
@@ -81,7 +81,7 @@ def main(opt):
    #  model = functions.cnn(opt, 3, n_filters=[128,256,256], input_shape=input_shape1)
    
 
-   model_name = 'cnn_flatten_fused80_2.h5'
+   model_name = 'cnn_pulse.h5'
    if(continue_from_last_trained_model):
      print('Continuing from a saved model...')
      model = load_model(model_name)
@@ -90,6 +90,7 @@ def main(opt):
      #model.set_weights(last_model.get_weights())
    else:
 	   model = functions.cnn_concat(opt, 3, n_filters=[128,256,256], input_shape1=input_shape1, input_shape2=input_shape2)
+	  #  model = functions.cnn(opt, 3, n_filters=[128,256,256], input_shape=input_shape2)
 	   model.compile(optimizer=optm, loss='categorical_crossentropy', metrics = ['accuracy'])
    
    model.summary()
@@ -106,7 +107,7 @@ def main(opt):
                       #use_multiprocessing=True,
                       callbacks=callbacks_list)
    print('.... Saving model \n')
-   model.save(opt.save_dir + model_name, overwrite=True)
+  #  model.save(opt.save_dir + model_name, overwrite=True)
 
  if opt.predict == '1':
    print(' -------------------------------------------------')
@@ -119,15 +120,15 @@ def main(opt):
    #print(validation_names)
    #exit(1)
 
-   model_name = 'cnn_flatten_fused80-30.h5'
-   model = load_model('./models/flatten-fused/' + model_name)
+   model_name = 'cnn_conv1d3-b3-k11.h5'
+   model = load_model('./models/triton/07-09/' + model_name)
   #  model = load_model(opt.save_dir + model_name)
   #  model = load_model(opt.save_dir + model_name, custom_objects=SeqWeightedAttention.get_custom_objects())
    model.summary()
    print('Model %s loaded' %model_name)
 
    score_file = './scores/' + model_name[:-3]
-   functions.predict_by_model(opt, model, validation_names, score_file, 'Embedding') #  concatenate_1
+   functions.predict_by_model(opt, model, validation_names, score_file, 'Embedding') #  concatenate_1 _mel
    print('.... Done prediction with model : %s' %model_name)
 
 if __name__=="__main__":
@@ -142,8 +143,8 @@ if __name__=="__main__":
    parser.add_argument('--save_dir', type=str, default='./models/', help='where model is saved')
 
    #optmization:
-   parser.add_argument('--window_size', type=int, default=150, help='Number of frames in a sample')
-   parser.add_argument('--batch_size', type=int, default=32, help='number of sequences to train on in parallel')
+   parser.add_argument('--window_size', type=int, default=350, help='Number of frames in a sample')
+   parser.add_argument('--batch_size', type=int, default=16, help='number of sequences to train on in parallel')
    parser.add_argument('--max_epochs', type=int, default=100, help='number of full passes through the training data')
    parser.add_argument('--activation_function', type=str, default='relu', help='Activation function')
    parser.add_argument('--n_classes',  type=int, help='Number of classes')

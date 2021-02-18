@@ -61,7 +61,7 @@ class DataGenerator(keras.utils.Sequence):
             # get mel sample
             with open(os.getenv("SOUND_FILE_PATH") + ID + self.suffixes[0], 'rb') as f:
                 X_mel[i,], index1 = functions.get_vector(np.transpose(pickle.load(f)), self.n_frames, ID)
-            #X[i,] = np.load()
+            # X[i,] = np.load()
 
             # get jitter & shimmer samples
             with open(os.getenv("SOUND_FILE_PATH") + ID + self.suffixes[1], 'r') as f:
@@ -70,7 +70,7 @@ class DataGenerator(keras.utils.Sequence):
                 for x in lines:
                     # remove all \t and \n from a line
                     x = x.rstrip().split('\t')
-                    r.append(x[:9]) # append the 9 first features (shim apq11 skipped)
+                    r.append(x[:9] + [x[14]]) # append the 9 first features (shim apq11 skipped)
                 # change the numbers to float
                 ar = np.array(r).astype(np.float)
                 # also provide the index1 from mel, so the data points match 
@@ -80,5 +80,4 @@ class DataGenerator(keras.utils.Sequence):
             # Store class
             y[i] = self.labels[ID]
             X = [X_mel, X_jittershimmer]
-            # X = X_mel
         return X, keras.utils.to_categorical(y, num_classes=self.n_classes)
